@@ -14,14 +14,15 @@ GLFWwindow* window;
 typedef struct {
   float position[3];
   float color[4];
+  float texCoord[2];
 } Vertex;
 
 
 const Vertex Vertices[] = {
-  {{1, -1, 0}, {1, 0, 0, 1}},
-  {{1, 1, 0}, {0, 1, 0, 1}},
-  {{-1, 1, 0}, {0, 0, 1, 1}},
-  {{-1, -1, 0}, {0, 0, 0, 1}}
+  {{1, -1, 0}, {1, 0, 0, 1}, {0, 0}},
+  {{1, 1, 0}, {0, 1, 0, 1}, {0, 1}},
+  {{-1, 1, 0}, {0, 0, 1, 1}, {1, 0}},
+  {{-1, -1, 0}, {0, 0, 0, 1}, {1, 1}}
 };
 
 
@@ -34,10 +35,14 @@ const GLubyte Indices[] = {
 char* vertex_shader_src =
   "attribute vec4 Position;\n"
   "attribute vec4 SourceColor;\n"
+  "attribute vec2 TexCoordIn;\n"
   "\n"
   "varying vec4 DestinationColor;\n"
+  "varying vec2 TexCoordOut;\n"
   "\n"
   "void main(void) {\n"
+  //Transformation Code here
+  "    TexCoordOut = TexCoordIn;"
   "    DestinationColor = SourceColor;\n"
   "    gl_Position = Position;\n"
   "}\n";
@@ -45,9 +50,12 @@ char* vertex_shader_src =
 
 char* fragment_shader_src =
   "varying lowp vec4 DestinationColor;\n"
+  "varying lowp vec2 TexCoordOut;\n"
+  "uniform sampler2D Texture;\n"
   "\n"
   "void main(void) {\n"
   "    gl_FragColor = DestinationColor;\n"
+  "    gl_FragColor = texture2D(Texture, TexCoordOut);\n"
   "}\n";
 
 
