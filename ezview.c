@@ -36,6 +36,9 @@ Vertex vertexes[] = {
 
 const double pi = 3.1415926535897;
 float rotation = 0;
+float scale = 1;
+float translate_x = 0;
+float translate_y = 0;
 
 static const char* vertex_shader_text =
 "uniform mat4 MVP;\n"
@@ -74,7 +77,19 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     	rotation += 90*pi/180;
     if (key == GLFW_KEY_E && action == GLFW_PRESS) //ROTATE CW
     	rotation -= 90*pi/180;
-    //TODO: SHEAR, TRANSLATION, SHEAR
+    if (key == GLFW_KEY_EQUAL && action == GLFW_PRESS)//
+    	scale = 2;
+    if (key == GLFW_KEY_MINUS && action == GLFW_PRESS)
+    	scale = .5;
+    if (key == GLFW_KEY_UP && action == GLFW_PRESS)  //Translate Up
+    	translate_y += .1;
+    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) //Translate Down
+    	translate_y -= .1;
+    if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) //Translate Right
+    	translate_x += .1;
+    if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) //Translate Left
+    	translate_x -= .1;
+    //TODO: SCALE, SHEAR
 }
 
 void glCompileShaderOrDie(GLuint shader) {
@@ -242,7 +257,7 @@ int main(int argc, char *argv[]){
     {
         float ratio;
         int width, height;
-        mat4x4 m, p, mvp;
+        mat4x4 r, s, t, mvp;
 
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float) height;
@@ -250,8 +265,16 @@ int main(int argc, char *argv[]){
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        mat4x4_identity(mvp);
-        mat4x4_rotate_Z(mvp, mvp, rotation); //angle of rotation
+        mat4x4_identity(r);
+        mat4x4_rotate_Z(r, r, rotation); //angle of rotation
+
+        mat4x4_identity(s); //NOT WORKING AS INTENDED
+        mat4x4_scale(s, s, scale);
+        
+        mat4x4_identity(t);	
+        mat4x4_translate(t, translate_x, translate_y, 0);
+
+        mat4x4_mul(mvp, r, t);
 
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
