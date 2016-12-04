@@ -34,6 +34,9 @@ Vertex vertexes[] = {
   {{1, -1}, {0.99999, 0.99999}}
 };
 
+const double pi = 3.1415926535897;
+float rotation = 0;
+
 static const char* vertex_shader_text =
 "uniform mat4 MVP;\n"
 "attribute vec2 TexCoordIn;\n"
@@ -67,6 +70,11 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     //Add keys for transformations here
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS) //ROTATE CCW
+    	rotation += 90*pi/180;
+    if (key == GLFW_KEY_E && action == GLFW_PRESS) //ROTATE CW
+    	rotation -= 90*pi/180;
+    //TODO: SHEAR, TRANSLATION, SHEAR
 }
 
 void glCompileShaderOrDie(GLuint shader) {
@@ -243,9 +251,7 @@ int main(int argc, char *argv[]){
         glClear(GL_COLOR_BUFFER_BIT);
 
         mat4x4_identity(mvp);
-        mat4x4_rotate_Z(mvp, mvp, 0); //angle of rotation
-        //mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-        //mat4x4_mul(mvp, p, m);
+        mat4x4_rotate_Z(mvp, mvp, rotation); //angle of rotation
 
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
@@ -263,7 +269,7 @@ int main(int argc, char *argv[]){
 
 //! [code]
 void read_p3(Pixel *buffer, FILE *input_file, int width, int height){
-//fgetc() and atoi() to read and convert ascii
+	//fgetc() and atoi() to read and convert ascii
 	int current_read;
 	int red, green, blue;
 	for(int i = 0; i < width*height; i++){
