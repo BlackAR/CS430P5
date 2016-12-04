@@ -26,12 +26,12 @@ typedef struct {
 // (-1, -1) (1, -1)
 
 Vertex vertexes[] = {
-  {{1, -1}, {0.99999, 0}},
-  {{1, 1},  {0.99999, 0.99999}},
-  {{-1, 1}, {0, 0.99999}}, 
-  {{-1, 1}, {0, 0.99999}},
-  {{-1, -1}, {0, 0}},
-  {{1, -1}, {0.99999, 0}}
+  {{1, -1}, {0.99999, 0.99999}},
+  {{1, 1},  {0.99999, 0}},
+  {{-1, 1}, {0, 0}}, 
+  {{-1, 1}, {0, 0}},
+  {{-1, -1}, {0, 0.99999}},
+  {{1, -1}, {0.99999, 0.99999}}
 };
 
 static const char* vertex_shader_text =
@@ -88,7 +88,6 @@ void glCompileShaderOrDie(GLuint shader) {
   }
 }
 
-// 4 x 4 image..
 int main(int argc, char *argv[]){
     GLFWwindow* window;
     GLuint vertex_buffer, vertex_shader, fragment_shader, program;
