@@ -283,8 +283,9 @@ int main(int argc, char *argv[]){
         h[1][0] = shear_y;
 
         mat4x4_identity(s); //NOT WORKING AS INTENDED
-        mat4x4_scale(s, s, scale);
-        
+        s[0][0] = s[0][0]*scale;
+        s[1][1] = s[1][1]*scale;
+                
         mat4x4_identity(t);	
         mat4x4_translate(t, translate_x, translate_y, 0);
 
