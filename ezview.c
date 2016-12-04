@@ -39,6 +39,8 @@ float rotation = 0;
 float scale = 1;
 float translate_x = 0;
 float translate_y = 0;
+float shear_x = 0;
+float shear_y = 0;
 
 static const char* vertex_shader_text =
 "uniform mat4 MVP;\n"
@@ -78,9 +80,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     if (key == GLFW_KEY_E && action == GLFW_PRESS) //ROTATE CW
     	rotation -= 90*pi/180;
     if (key == GLFW_KEY_EQUAL && action == GLFW_PRESS)//
-    	scale = 2;
+    	scale *= 2;
     if (key == GLFW_KEY_MINUS && action == GLFW_PRESS)
-    	scale = .5;
+    	scale *= .5;
     if (key == GLFW_KEY_UP && action == GLFW_PRESS)  //Translate Up
     	translate_y += .1;
     if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) //Translate Down
@@ -89,6 +91,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     	translate_x += .1;
     if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) //Translate Left
     	translate_x -= .1;
+    if (key == GLFW_KEY_KP_6 && action == GLFW_PRESS) //Shear Up
+    	shear_y += .1;
+    if (key == GLFW_KEY_KP_4 && action == GLFW_PRESS) //Shear Down
+    	shear_y -= .1;
+    if (key == GLFW_KEY_KP_8 && action == GLFW_PRESS) //Shear Right
+    	shear_x += .1;
+    if (key == GLFW_KEY_KP_2 && action == GLFW_PRESS) //Shear Left
+    	shear_x -= .1;
     //TODO: SCALE, SHEAR
 }
 
@@ -257,16 +267,20 @@ int main(int argc, char *argv[]){
     {
         float ratio;
         int width, height;
-        mat4x4 r, s, t, mvp;
+        mat4x4 r, h, s, t, rh, rhs, mvp; //matrices for each transformation and intermediate values
 
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float) height;
 
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
-
+        //RHS T
         mat4x4_identity(r);
         mat4x4_rotate_Z(r, r, rotation); //angle of rotation
+
+        mat4x4_identity(h);
+        h[0][1] = shear_x;
+        h[1][0] = shear_y;
 
         mat4x4_identity(s); //NOT WORKING AS INTENDED
         mat4x4_scale(s, s, scale);
@@ -274,7 +288,9 @@ int main(int argc, char *argv[]){
         mat4x4_identity(t);	
         mat4x4_translate(t, translate_x, translate_y, 0);
 
-        mat4x4_mul(mvp, r, t);
+        mat4x4_mul(rh, r, h); //R*H
+        mat4x4_mul(rhs, rh, s);//R*H*S
+        mat4x4_mul(mvp, rhs, t);//R*H*S*T
 
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
