@@ -14,6 +14,10 @@ typedef struct {
   float Position[2];
   float TexCoord[2];
 } Vertex;
+
+typedef struct {
+	unsigned char r, g, b;
+} Pixel;
 // TexCoord
 // (0, 1.0) (1.0, 1.0)
 // (0, 0)   (1.0, 0)
@@ -49,6 +53,10 @@ static const char* fragment_shader_text =
 "    gl_FragColor = texture2D(Texture, TexCoordOut);\n"
 "}\n";
 
+void read_p3(Pixel *buffer, FILE *input_file, int width, int height);
+
+void read_p6(Pixel *buffer, FILE *input_file, int width, int height);
+
 static void error_callback(int error, const char* description)
 {
     fprintf(stderr, "Error: %s\n", description);
@@ -81,35 +89,64 @@ void glCompileShaderOrDie(GLuint shader) {
 }
 
 // 4 x 4 image..
-unsigned char image[] = {
-  255, 0, 0, 255,
-  255, 0, 0, 255,
-  255, 0, 0, 255,
-  255, 0, 0, 255,
-
-  0, 255, 0, 255,
-  0, 255, 0, 255,
-  0, 255, 0, 255,
-  0, 255, 0, 255,
-
-  0, 0, 255, 255,
-  0, 0, 255, 255,
-  0, 0, 255, 255,
-  0, 0, 255, 255,
-
-  255, 0, 255, 255,
-  255, 0, 255, 255,
-  255, 0, 255, 255,
-  255, 0, 255, 255
-};
-
-int main(void)
-{
+int main(int argc, char *argv[]){
     GLFWwindow* window;
     GLuint vertex_buffer, vertex_shader, fragment_shader, program;
     GLint mvp_location, vpos_location, vcol_location;
-
+    int image_width, image_height, max_color, read_character, original_format;
+    FILE *input_file;
+	Pixel *image;
     glfwSetErrorCallback(error_callback);
+
+	if(argc != 2){
+		fprintf(stderr, "ERROR: Incorrect number of arguments. Args given: %d\r\n", argc);
+		return EXIT_FAILURE;
+	}
+	input_file = fopen(argv[1], "r");
+	if(input_file == NULL){
+		fprintf(stderr, "ERROR: Failed to open input file.\r\n");
+		return EXIT_FAILURE;
+	}
+	//reading the image type (should be P3 or P6)
+	read_character = getc(input_file);
+	if(read_character != 'P'){
+		fprintf(stderr, "ERROR: Input file is not in PPM format.\r\n");
+	}
+	original_format = getc(input_file);
+	if(!(original_format != '6'|| original_format != '3')){
+		fprintf(stderr, "ERROR: Unsupported image type. Please provide a PPM image in either P3 or P6 format. Input given: %c.\r\n", original_format);
+	}
+	read_character = getc(input_file); //should get newline
+	read_character = getc(input_file);//should get either a comment character or number
+	//read and print out any comment in image to console
+	if (read_character == '#'){
+		while(read_character != '\n'){
+			read_character = getc(input_file);
+		}
+		printf("%c", read_character);
+	}
+	else{  //if there wasn't a comment, we want to go back one character so we're at the start of the line.
+		ungetc(read_character, input_file);
+	}
+	//get width, height, and max color value
+	fscanf(input_file, "%d %d\n%d\n", &image_width, &image_height, &max_color);
+	if(max_color >= 256){
+		fprintf(stderr, "ERROR: Multi-byte samples not supported.\r\n");
+		return EXIT_FAILURE;
+	}
+	//allocate memory for all the pixels
+	image = (Pixel *)malloc(image_width*image_height*sizeof(Pixel));
+	if(original_format == '3'){
+		read_p3(image, input_file, image_width, image_height);
+	}
+	else if(original_format == '6'){
+		read_p6(image, input_file, image_width, image_height);
+	}
+	else{
+		fprintf(stderr, "ERROR: Unknown format.");
+		return EXIT_FAILURE;
+	}
+	fclose(input_file);
 
     if (!glfwInit())
         exit(EXIT_FAILURE);
@@ -181,16 +218,13 @@ int main(void)
                           sizeof(Vertex),
 			  (void*) (sizeof(float) * 2));
     
-    int image_width = 4;
-    int image_height = 4;
-
     GLuint texID;
     glGenTextures(1, &texID);
     glBindTexture(GL_TEXTURE_2D, texID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, 
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGB, 
 		 GL_UNSIGNED_BYTE, image);
 
     glActiveTexture(GL_TEXTURE0);
@@ -229,3 +263,28 @@ int main(void)
 }
 
 //! [code]
+void read_p3(Pixel *buffer, FILE *input_file, int width, int height){
+//fgetc() and atoi() to read and convert ascii
+	int current_read;
+	int red, green, blue;
+	for(int i = 0; i < width*height; i++){
+		current_read = fgetc(input_file);
+		while(current_read  == ' ' || current_read  == '\n'){ //jumps to first character of first number
+			current_read = fgetc(input_file);
+		}
+		ungetc(current_read, input_file); //since we're now at the beginning of a number, go back one.
+		fscanf(input_file, "%d %d %d", &red, &green, &blue);
+		buffer[i].r = red;
+		buffer[i].g = green;
+		buffer[i].b = blue;
+	}	
+}
+
+void read_p6(Pixel *buffer, FILE *input_file, int width, int height){
+	//reading each pixel into memory for a P6 image
+	for(int i = 0; i < width*height; i++){
+		fread(&buffer[i].r, 1, 1, input_file);
+		fread(&buffer[i].g, 1, 1, input_file);
+		fread(&buffer[i].b, 1, 1, input_file);
+	}
+}
