@@ -13,17 +13,29 @@ ezview [ppm image name]
 The ppm image must be in either P3 or P6 format.
 
 # Transformation Commands
+
 Q - Rotate Image 90 degrees counterclockwise
+
 E - Rotate Image 90 degrees clockwise
+
 Up Arrow - Translate image up
+
 Down Arrow - Translate image down
+
 Left Arrow - Translate image left
+
 Right Arrow - Translate image right
+
 "-" - Scale image down by half
+
 "=" - Scale image up by double
+
 W - Increase Vertical Shear
+
 A - Decrease Vertical Shear
+
 S - Increase Horizontal Shear
+
 D - Decrease Horizontal Shear
 
 #=====Provided Starter Kit Readme=====
