@@ -32,11 +32,11 @@ Right Arrow - Translate image right
 
 W - Increase Vertical Shear
 
-A - Decrease Vertical Shear
+S - Decrease Vertical Shear
 
-S - Increase Horizontal Shear
+A - Decrease Horizontal Shear
 
-D - Decrease Horizontal Shear
+D - Increase Horizontal Shear
 
 #=====Provided Starter Kit Readme=====
 # GLES2 Starter Kit for WIN32

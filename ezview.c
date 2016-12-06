@@ -91,13 +91,13 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     	translate_x += .1;
     if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) //Translate Left
     	translate_x -= .1;
-    if (key == GLFW_KEY_KP_6 && action == GLFW_PRESS) //Shear Up
+    if (key == GLFW_KEY_D && action == GLFW_PRESS) //Shear Up
     	shear_y += .1;
-    if (key == GLFW_KEY_KP_4 && action == GLFW_PRESS) //Shear Down
+    if (key == GLFW_KEY_A && action == GLFW_PRESS) //Shear Down
     	shear_y -= .1;
-    if (key == GLFW_KEY_KP_8 && action == GLFW_PRESS) //Shear Right
+    if (key == GLFW_KEY_W && action == GLFW_PRESS) //Shear Right
     	shear_x += .1;
-    if (key == GLFW_KEY_KP_2 && action == GLFW_PRESS) //Shear Left
+    if (key == GLFW_KEY_S && action == GLFW_PRESS) //Shear Left
     	shear_x -= .1;
     //TODO: SCALE, SHEAR
 }
