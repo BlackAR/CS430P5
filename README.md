@@ -26,7 +26,7 @@ A - Decrease Vertical Shear
 S - Increase Horizontal Shear
 D - Decrease Horizontal Shear
 
-#===============Provided Starter Kit Readme=============================
+#=====Provided Starter Kit Readme=====
 # GLES2 Starter Kit for WIN32
 
 [OpenGL for Embedded Systems](http://www.khronos.org/opengles/)
