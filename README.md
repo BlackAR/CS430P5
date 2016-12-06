@@ -1,3 +1,32 @@
+# CS430P5
+Fifth Project for Computer Graphics Course
+
+Project implement an image viewer in OpenGL ES 2.
+
+# How To Run
+This build is designed on Windows using VS2015 x86 Native Tools Command
+Prompt. From the directory simply call "nmake" to build. Once compiled,
+enter:
+
+ezview [ppm image name]
+
+The ppm image must be in either P3 or P6 format.
+
+# Transformation Commands
+Q - Rotate Image 90 degrees counterclockwise
+E - Rotate Image 90 degrees clockwise
+Up Arrow - Translate image up
+Down Arrow - Translate image down
+Left Arrow - Translate image left
+Right Arrow - Translate image right
+"-" - Scale image down by half
+"=" - Scale image up by double
+W - Increase Vertical Shear
+A - Decrease Vertical Shear
+S - Increase Horizontal Shear
+D - Decrease Horizontal Shear
+
+#===============Provided Starter Kit Readme=============================
 # GLES2 Starter Kit for WIN32
 
 [OpenGL for Embedded Systems](http://www.khronos.org/opengles/)
